@@ -1,4 +1,4 @@
-***Lightweight testing setup for fauna***
+***CurrentIdentity repro for read:predicate ***
 
 **Instructions:**
 
