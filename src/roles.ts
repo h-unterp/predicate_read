@@ -49,7 +49,7 @@ export const CreateMembershipRoleAllUsers = CreateOrUpdateRole({
         //read predicate: A reference to the document to be read,
         read: Query(
           Lambda(
-            ["vouchJoinRef"],
+            ["ref"],
             //true
             Equals(CurrentIdentity(), CurrentIdentity())
           )
