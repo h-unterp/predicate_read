@@ -1,4 +1,4 @@
-***CurrentIdentity repro for read:predicate ***
+***CurrentIdentity repro for read:predicate***
 
 **Instructions:**
 
