@@ -1,16 +1,16 @@
 import "dotenv/config";
-export const generalTestSetup = async function (dbName) {
+export const generalTestSetup = async function (dbName: string) {
   console.log(`----- ${dbName} -----`);
   var args = minimist(process.argv.slice(2));
   // First create database to run this test in.
   const adminClientParentDb = new faunadb.Client({
-    secret: process.env.ADMIN_KEY,
+    secret: process.env.ADMIN_KEY || "",
     domain: "db.us.fauna.com",
   });
 
   if (args.fullSetup) {
     // Create the admin client for the new database to bootstrap things
-    const secret = await handlePromiseError(
+    await handlePromiseError(
       deleteAndCreateDatabase(adminClientParentDb, dbName),
       `Creating ${dbName} database`
     );
@@ -34,11 +34,16 @@ export const generalTestSetup = async function (dbName) {
   if (args.setup || args.fullSetup) {
     // Setup the database for this test.
     await handlePromiseError(setupDatabase(adminClient), "Setup Database");
+    await handleSetupError(adminClient.query(CreateMembershipRoleAllUsers), "CreateMembershipRoleAllUsers");
+    await handleSetupError(adminClient.query(CreateUDF), "CreateUDF");
+    await handleSetupError(adminClient.query(CreateMembershipRoleAllUsersFn), "CreateMembershipRoleAllUsersFn");
     process.exit(0);
   }
 
   //deletes all data in the database but not indexes/functions/etc.
   await handlePromiseError(deleteAll(adminClient), "Delete All");
+
+
 
   return adminClient;
 };
@@ -56,5 +61,7 @@ import {
   handleSetupError,
 } from "./errors.js";
 import { deleteAll } from "./clearData.js";
+// @ts-ignore
 import countdown from "t-minus-logger";
 import minimist from "minimist";
+import { CreateMembershipRoleAllUsers, CreateMembershipRoleAllUsersFn } from "../roles.js";import { CreateUDF } from "../function.js";

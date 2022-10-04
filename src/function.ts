@@ -1,18 +1,10 @@
 import faunadb from "faunadb";
 import "dotenv/config";
+import { TestRoles } from "./roles";
+import { TestIndexes } from "./create";
 const q = faunadb.query;
-const { Let, Update, CreateFunction, Query, Var, If, Exists, Lambda } = q;
-
-const LetItBe = function () {
-  return Let(
-    {
-      thing1: 1,
-    },
-    Var("thing1")
-  );
-};
-
-const CreateOrUpdateFunction = function (obj:any) {
+const { Get, Match, Index, Update, CreateFunction, Query, CurrentIdentity, If, Exists, Lambda, Role } = q;
+const CreateOrUpdateFunction = function (obj: any) {
   return If(
     Exists(q.Function(obj.name)),
     Update(q.Function(obj.name), { body: obj.body, role: obj.role }),
@@ -20,13 +12,16 @@ const CreateOrUpdateFunction = function (obj:any) {
   );
 };
 
-const LetTest = CreateOrUpdateFunction({
-  name: "let_test",
-  body: Query(Lambda("ref", LetItBe())),
-  role: "admin",
-});
+export const enum TestFunctions {
+  LetItBe = "let_it_be",
+}
 
-var client = new faunadb.Client({
-  secret: process.env.FAUNA_SECRET || "",
+const LetItBe = function () {
+  return Get(Match(Index(TestIndexes.InfoByUserRef), CurrentIdentity()));
+};
+
+export const CreateUDF = CreateOrUpdateFunction({
+  name: TestFunctions.LetItBe,
+  body: Query(Lambda("ref", LetItBe())),
+  role: Role(TestRoles.AllUsers),
 });
-client.query(LetTest).then((response) => console.log(response));

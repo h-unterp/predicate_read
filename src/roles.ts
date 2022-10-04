@@ -1,12 +1,17 @@
 
 import faunadb from "faunadb";
 import { TestCollections, TestIndexes } from "./create";
+import { TestFunctions } from "./function";
 const q = faunadb.query;
-const { Equals, CurrentIdentity, Index, Update, CreateRole, Query, Collection, If, Exists, Lambda, Role } = q;
+const {
+  Equals, CurrentIdentity,
+  Query, Lambda,
+  Index, Update, CreateRole, Collection, If, Exists, Role, Function } = q;
 
 
-export const enum Roles {
+export const enum TestRoles {
   AllUsers = 'allUsers',
+  AllUsersFn = 'allUsersFn'
 }
 
 // A convenience function to either create or update a role.
@@ -25,7 +30,7 @@ export const CreateOrUpdateRole = function (obj: any) {
 };
 
 export const CreateMembershipRoleAllUsers = CreateOrUpdateRole({
-  name: Roles.AllUsers,
+  name: TestRoles.AllUsers,
   membership: [{ resource: Collection(TestCollections.Users) }],
   privileges: [
     {
@@ -47,10 +52,22 @@ export const CreateMembershipRoleAllUsers = CreateOrUpdateRole({
             ["vouchJoinRef"],
             //true
             Equals(CurrentIdentity(), CurrentIdentity())
-            //Select(["data", VouchModel.userRef], Get(Var("vouchJoinRef"))))
           )
         ),
         write: true,
+      },
+    },
+  ],
+});
+
+export const CreateMembershipRoleAllUsersFn = CreateOrUpdateRole({
+  name: TestRoles.AllUsersFn,
+  membership: [{ resource: Collection(TestCollections.Users) }],
+  privileges: [
+    {
+      resource: Function(TestFunctions.LetItBe),
+      actions: {
+        call: true,
       },
     },
   ],
