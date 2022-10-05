@@ -1,11 +1,14 @@
 
 import faunadb from "faunadb";
-import { TestCollections, TestIndexes } from "./create";
+import { 
+  //InfoModel, 
+  TestCollections, TestIndexes } from "./create";
 import { TestFunctions } from "./function";
 const q = faunadb.query;
 const {
   Equals, CurrentIdentity,
   Query, Lambda,
+  //Select, Get, Var,
   Index, Update, CreateRole, Collection, If, Exists, Role, Function } = q;
 
 
@@ -50,8 +53,15 @@ export const CreateMembershipRoleAllUsers = CreateOrUpdateRole({
         read: Query(
           Lambda(
             ["ref"],
+
+            //this works.
             //true
-            Equals(CurrentIdentity(), CurrentIdentity())
+
+            //this fails.
+            Equals(CurrentIdentity(), CurrentIdentity()),
+
+            //this is the actual goal, to only allow the user to read their own info.
+            //Equals(Select(["data", InfoModel.userRef], Get(Var("ref"))), CurrentIdentity())
           )
         ),
         write: true,
