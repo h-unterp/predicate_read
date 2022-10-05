@@ -4,11 +4,11 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { generalTestSetup } from "./support/testDBSetup.js";
 import faunadb from "faunadb";
-import { InfoModel, TestCollections } from "./create.js";
+import { InfoModel, TestCollections, TestIndexes } from "./create.js";
 import { TestFunctions } from "./function.js";
 import { handlePromiseError } from "./support/errors.js";
 const q = faunadb.query;
-const { Let, Select, Create, Collection, Function, Login, Get, Var, Call } = q;
+const { Let, Select, Create, Collection, Function, Login, Get, Var, Call, Match, Index, CurrentIdentity } = q;
 
 chai.use(chaiAsPromised);
 chai.should();
@@ -53,7 +53,15 @@ describe(TOPIC, function () {
 
   });
 
-  it("after works", async function () {
+  it("The regular query passes", async function () {
+    await loggedInClient.query(
+      Get(Match(Index(TestIndexes.InfoByUserRef), CurrentIdentity()))
+    ).then((res: any) => {
+      console.log(res);
+    });
+  });
+
+  it("The UDF fails", async function () {
     await handlePromiseError(loggedInClient.query(Call(Function(TestFunctions.LetItBe), user1.ref)).then((res: any) => {
       console.log(res);
     }));

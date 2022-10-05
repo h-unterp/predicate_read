@@ -1,14 +1,16 @@
 
 import faunadb from "faunadb";
-import { 
+import {
+  InfoModel,
   //InfoModel, 
-  TestCollections, TestIndexes } from "./create";
+  TestCollections, TestIndexes
+} from "./create";
 import { TestFunctions } from "./function";
 const q = faunadb.query;
 const {
   Equals, CurrentIdentity,
   Query, Lambda,
-  //Select, Get, Var,
+  Select, Get, Var,
   Index, Update, CreateRole, Collection, If, Exists, Role, Function } = q;
 
 
@@ -58,10 +60,10 @@ export const CreateMembershipRoleAllUsers = CreateOrUpdateRole({
             //true
 
             //this fails.
-            Equals(CurrentIdentity(), CurrentIdentity()),
+            //Equals(CurrentIdentity(), CurrentIdentity()),
 
-            //this is the actual goal, to only allow the user to read their own info.
-            //Equals(Select(["data", InfoModel.userRef], Get(Var("ref"))), CurrentIdentity())
+            //this is the actual goal, but also fails to only allow the user to read their own info.
+            Equals(Select(["data", InfoModel.userRef], Get(Var("ref"))), CurrentIdentity())
           )
         ),
         write: true,
