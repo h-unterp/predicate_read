@@ -13,15 +13,33 @@ const CreateOrUpdateFunction = function (obj: any) {
 };
 
 export const enum TestFunctions {
-  LetItBe = "let_it_be",
+  FnUnrestrictedRead = "fn_unrestricted_read",
+  FnCollectionPredicate = "fn_collection_predicate"
 }
+//
+// FnUnrestrictedRead
+//
 
-const LetItBe = function () {
+const FnUnrestrictedRead = function () {
   return Get(Match(Index(TestIndexes.InfoByUserRef), CurrentIdentity()));
 };
 
-export const CreateUDF = CreateOrUpdateFunction({
-  name: TestFunctions.LetItBe,
-  body: Query(Lambda("ref", LetItBe())),
-  role: Role(TestRoles.AllUsers),
+export const CreateUnrestrictedReadUDF = CreateOrUpdateFunction({
+  name: TestFunctions.FnUnrestrictedRead,
+  body: Query(Lambda("ref", FnUnrestrictedRead())),
+  role: Role(TestRoles.UnrestrictedRead),
+});
+
+//
+// FnCollectionPredicate
+//
+
+const FnCollectionPredicate = function () {
+  return Get(Match(Index(TestIndexes.InfoByUserRef), CurrentIdentity()));
+};
+
+export const CreateCollectionPredicateUDF = CreateOrUpdateFunction({
+  name: TestFunctions.FnCollectionPredicate,
+  body: Query(Lambda("ref", FnCollectionPredicate())),
+  role: Role(TestRoles.CollectionPredicate),
 });

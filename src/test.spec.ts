@@ -50,7 +50,6 @@ describe(TOPIC, function () {
     });
     loggedInClient = loggedInClient;
     user1 = user1;
-
   });
 
   it("The regular query passes", async function () {
@@ -61,8 +60,14 @@ describe(TOPIC, function () {
     });
   });
 
-  it("The UDF fails", async function () {
-    await handlePromiseError(loggedInClient.query(Call(Function(TestFunctions.LetItBe), user1.ref)).then((res: any) => {
+  /*it("FnUnrestrictedRead fails", async function () {
+    await handlePromiseError(loggedInClient.query(Call(Function(TestFunctions.FnUnrestrictedRead), user1.ref)).then((res: any) => {
+      console.log(res);
+    }));
+  });*/
+
+  it("FnCollectionPredicate fails", async function () {
+    await handlePromiseError(loggedInClient.query(Call(Function(TestFunctions.FnCollectionPredicate), user1.ref)).then((res: any) => {
       console.log(res);
     }));
   });

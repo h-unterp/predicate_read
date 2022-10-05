@@ -1,22 +1,22 @@
 
 import faunadb from "faunadb";
 import {
-  InfoModel,
-  //InfoModel, 
-  TestCollections, TestIndexes
+  InfoModel,TestCollections, TestIndexes
 } from "./create";
 import { TestFunctions } from "./function";
 const q = faunadb.query;
 const {
   Equals, CurrentIdentity,
   Query, Lambda,
-  Select, Get, Var,
+  Select, Get,
+  Var,
   Index, Update, CreateRole, Collection, If, Exists, Role, Function } = q;
 
 
 export const enum TestRoles {
-  AllUsers = 'allUsers',
-  AllUsersFn = 'allUsersFn'
+  UnrestrictedRead = "unrestricted_read",
+  CollectionPredicate = "collection_predicate",
+  FunctionRole = "function_role",
 }
 
 // A convenience function to either create or update a role.
@@ -34,8 +34,36 @@ export const CreateOrUpdateRole = function (obj: any) {
   );
 };
 
-export const CreateMembershipRoleAllUsers = CreateOrUpdateRole({
-  name: TestRoles.AllUsers,
+export const CreateRoleUnrestrictedRead = CreateOrUpdateRole({
+  name: TestRoles.UnrestrictedRead,
+  membership: [{ resource: Collection(TestCollections.Users) }],
+  privileges: [
+    {
+      resource: Collection(TestCollections.Users),
+      actions: { read: true },
+    },
+    {
+      resource: Index(TestIndexes.InfoByUserRef),
+      actions: {
+        unrestricted_read: Query(
+          Lambda(
+            ["ref"],
+            Equals(Var("ref"), CurrentIdentity())
+          ))
+      },
+    },
+    {
+      resource: Collection(TestCollections.Info),
+      actions: {
+        read: true,
+        write: true,
+      },
+    },
+  ],
+});
+
+export const CreateRoleCollectionPredicate = CreateOrUpdateRole({
+  name: TestRoles.CollectionPredicate,
   membership: [{ resource: Collection(TestCollections.Users) }],
   privileges: [
     {
@@ -74,11 +102,17 @@ export const CreateMembershipRoleAllUsers = CreateOrUpdateRole({
 });
 
 export const CreateMembershipRoleAllUsersFn = CreateOrUpdateRole({
-  name: TestRoles.AllUsersFn,
+  name: TestRoles.FunctionRole,
   membership: [{ resource: Collection(TestCollections.Users) }],
   privileges: [
+    /*{
+      resource: Function(TestFunctions.FnUnrestrictedRead),
+      actions: {
+        call: true,
+      },
+    },*/
     {
-      resource: Function(TestFunctions.LetItBe),
+      resource: Function(TestFunctions.FnCollectionPredicate),
       actions: {
         call: true,
       },

@@ -34,8 +34,11 @@ export const generalTestSetup = async function (dbName: string) {
   if (args.setup || args.fullSetup) {
     // Setup the database for this test.
     await handlePromiseError(setupDatabase(adminClient), "Setup Database");
-    await handleSetupError(adminClient.query(CreateMembershipRoleAllUsers), "CreateMembershipRoleAllUsers");
-    await handleSetupError(adminClient.query(CreateUDF), "CreateUDF");
+    /*await handleSetupError(adminClient.query(CreateRoleUnrestrictedRead), "CreateRoleUnrestrictedRead");
+    await handleSetupError(adminClient.query(CreateUnrestrictedReadUDF), "CreateUnrestrictedReadUDF");*/
+    await handleSetupError(adminClient.query(CreateRoleCollectionPredicate), "CreateRoleCollectionPredicate");
+    await handleSetupError(adminClient.query(CreateCollectionPredicateUDF), "CreateCollectionPredicateUDF");
+
     await handleSetupError(adminClient.query(CreateMembershipRoleAllUsersFn), "CreateMembershipRoleAllUsersFn");
     process.exit(0);
   }
@@ -64,4 +67,5 @@ import { deleteAll } from "./clearData.js";
 // @ts-ignore
 import countdown from "t-minus-logger";
 import minimist from "minimist";
-import { CreateMembershipRoleAllUsers, CreateMembershipRoleAllUsersFn } from "../roles.js";import { CreateUDF } from "../function.js";
+import { CreateMembershipRoleAllUsersFn, CreateRoleCollectionPredicate } from "../roles.js";import { CreateCollectionPredicateUDF } from "../function.js";
+
