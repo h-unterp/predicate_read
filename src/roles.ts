@@ -56,13 +56,14 @@ export const CreateMembershipRoleAllUsers = CreateOrUpdateRole({
           Lambda(
             ["ref"],
 
-            //this works.
+            //this works when run from UDF
             //true
 
-            //this fails.
+            //this fails when run from UDF
             //Equals(CurrentIdentity(), CurrentIdentity()),
 
-            //this is the actual goal, but also fails to only allow the user to read their own info.
+            //this is the actual goal, but also fails to only allow the user to read their own info
+            //this fails when run from UDFM, but works when run from a query.
             Equals(Select(["data", InfoModel.userRef], Get(Var("ref"))), CurrentIdentity())
           )
         ),
